@@ -7,9 +7,18 @@ extraction_data<-extraction_data|>
 filtered<-extraction_data|>
   filter(!is.na(depth_cm))
 filtered$totalDNA<-as.numeric(filtered$totalDNA)
+#filtered<-filtered|>
+  #rename(PostWash=V13)
+filtered$PostWash<-as.numeric(as.character(filtered$PostWash))
 ggplot(data=filtered, aes(x=depth_cm,y=totalDNA, color=V1))+
   #already renamed V25 to totalDNA
   geom_point()+
+  geom_smooth(method = "lm", se = FALSE, color = "blue")+
   scale_y_continuous(breaks = seq(100, 1000, by = 100), limits = c(0, 1000))+
   theme_minimal()+
   labs(x="Core Depth(cm)", y="Total DNA(ng)")
+model <- lm(totalDNA ~ depth_cm, data = filtered)
+summary(model)$r.squared
+#ggplot(data=filtered, aes(x=PostWash,y=totalDNA))+
+  #geom_point()
+  
