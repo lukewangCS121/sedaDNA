@@ -35,14 +35,14 @@ filtered$PostWash<-as.numeric(as.character(filtered$PostWash))
 
 model <- gam(totalDNA ~ depth_cm, data = filtered)
 summary(model)
-mod_sm<-gam(totalDNA ~ s(depth_cm)+ExDate_numeric+WashMin, data = filtered, na.action = na.exclude)#s for smooth,not enough distinct values for washmin and date extracted
+mod_sm<-gam(totalDNA ~ s(depth_cm)+ExDate_numeric+WashMin+s(PostWash), data = filtered, na.action = na.exclude)#s for smooth,not enough distinct values for washmin and date extracted
 summary(mod_sm)
 filtered$residuals<-residuals(mod_sm)
 threshold<-2*sd(filtered$residuals, na.rm=TRUE)
 filtered_clean<-filtered|>
   filter(abs(residuals)<threshold)
-gam_clean <- gam(totalDNA ~s(depth_cm)+ExDate_numeric+WashMin, data = filtered_clean)
-summary(gam_clean)
+gam_clean <- gam(totalDNA ~s(depth_cm)+ExDate_numeric+WashMin+s(PostWash), data = filtered_clean)
+summary(gam_clean)#0.573 r squared
 
 ggplot(data=filtered_clean, aes(x=depth_cm,y=totalDNA, color=V1))+
   geom_point()+
@@ -53,7 +53,6 @@ ggplot(data=filtered_clean, aes(x=depth_cm,y=totalDNA, color=V1))+
 
 filtered_clean$gam_pred <- predict(gam_clean)
 plot(gam_clean, pages = 3, residuals = TRUE, shade = TRUE, seWithMean = TRUE)
-
 
 #ggplot(data=filtered, aes(x=PostWash,y=totalDNA))+
   #geom_point()
