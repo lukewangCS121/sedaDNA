@@ -6,7 +6,9 @@ library(mgcv)
 library(lubridate)
 library(patchwork)
 # install.packages("gratia")
-# library(gratia)
+library(gratia)
+install.packages("corrplot")
+library(corrplot)
 
 
 extraction_data<-extraction_data|>
@@ -44,7 +46,7 @@ filtered$residuals<-residuals(mod_sm)
 threshold<-2*sd(filtered$residuals, na.rm=TRUE)#calculate residuals to filter out outliers
 filtered_clean<-filtered|>
   filter(abs(residuals)<threshold)
-gam_clean <- gam(totalDNA ~depth_cm+factor(ExDate)+WashMin+s(PostWash), data = filtered_clean)#use factor() for date
+gam_clean <- gam(totalDNA~depth_cm+factor(ExDate)+WashMin+s(PostWash), data = filtercleanwo2)#use factor() for date
 summary(gam_clean)#0.639 r squared
 
 filtercleanwo2<-filtered_clean|>
@@ -68,10 +70,20 @@ p3<-ggplot(data=filtercleanwo2, aes(x=factor(WashMin), y=totalDNA))+
   labs(x="PBS Wash Length(min)", y="Total DNA(ng)")
 p1+p2+p3
 
-filtered_clean$gam_pred <- predict(gam_clean)
+filtercleanwo2$gam_pred <- predict(gam_clean)
 plot(gam_clean, pages = 3, residuals = TRUE, shade = TRUE, seWithMean = TRUE)#check GAM effect plot
+draw(gam_clean)
+
+ggplot(filtercleanwo2, aes(x=depth_cm, y=totalDNA))+
+  geom_point()+
+  geom_line(aes(y=gam_pred),color="blue")+
+  theme_minimal()
+
 
 #add correlation plots, pearson's, 
+corrmat<-cor(filtercleanwo2[, c("totalDNA", "depth_cm","WashMin")], use = "complete.obs")
+corrplot(corrmat, method = "circle", type = "upper", tl.col = "black", addCoef.col = "black")
+
 
 #ggplot(data=filtered, aes(x=PostWash,y=totalDNA))+
   #geom_point()
