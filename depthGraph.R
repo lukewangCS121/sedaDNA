@@ -5,9 +5,7 @@ library(stringr)
 library(mgcv)
 library(lubridate)
 library(patchwork)
-# install.packages("gratia")
 library(gratia)
-install.packages("corrplot")
 library(corrplot)
 
 
@@ -79,11 +77,26 @@ ggplot(filtercleanwo2, aes(x=depth_cm, y=totalDNA))+
   geom_line(aes(y=gam_pred),color="blue")+
   theme_minimal()
 
+#correlation between pre and post wash mass
+ggplot(filtercleanwo2, aes(x=V12, y=PostWash, color=factor(WashMin)))+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x="Pre Wash Weight(g)", y="Post Wash Weight(g)")
+
+#correlation between pre/post wash mass g and total DNA
+filtercleanwo2$PreWash<-as.numeric(filtercleanwo2$V12)
+ggplot(filtercleanwo2, aes(x=PreWash, y=totalDNA, color=PostWash))+
+  geom_point()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x="Pre Wash Weight(g)", y="Total DNA extracted(ng)")
+
 
 #add correlation plots, pearson's, 
 corrmat<-cor(filtercleanwo2[, c("totalDNA", "depth_cm","WashMin")], use = "complete.obs")
 corrplot(corrmat, method = "circle", type = "upper", tl.col = "black", addCoef.col = "black")
-
+#correlation between pre/post wash weight and total DNA
+corrWeight<-cor(filtercleanwo2[,c("totalDNA", "PreWash", "PostWash")], use="complete.obs")
+corrplot(corrWeight,method="circle", type="upper", tl.col="black", addCoef.col="black")
 
 #ggplot(data=filtered, aes(x=PostWash,y=totalDNA))+
   #geom_point()

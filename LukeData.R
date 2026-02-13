@@ -30,7 +30,7 @@ plot(dnaDepthGAM, pages = 3, residuals = TRUE, shade = TRUE, seWithMean = TRUE)
 draw(dnaDepthGAM)
 
 #elemental
-hasDepth$RbNormal=hasDepth$Rb.Ka.Area/sum(hasDepth$Rb.Ka.Area,na.rm=TRUE)
+hasDepth$RbNormal=hasDepth$Rb.Ka.Area/sum(hasDepth$Rb.Ka.Area,na.rm=TRUE) #use elemental ratios
 ggplot(data=hasDepth,aes(x=RbNormal,y=total.DNA..ng.,na.rm=TRUE))+
   geom_point()#supposed to be well
 hasDepth$SrNormal=hasDepth$Sr.Ka.Area/sum(hasDepth$Sr.Ka.Area,na.rm=TRUE)
